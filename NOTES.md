@@ -1,0 +1,23 @@
+## Changed from the plan
+
+Implemented the single-file vanilla HTML/CSS/SVG explorer with inline JSON, deterministic force-directed layout (repulsion plus springs), immediate initial graph and selected-file preview, search, four category toggles, direct dependency/dependent highlighting, linked inspector navigation, external dependency badges, keyboard-accessible nodes, and zoom/pan/reset. No framework, bundler, fonts, images, packages, accounts, or runtime requests are required. Open `index.html` directly.
+
+The shipped snapshot contains 37 real source files and 39 internal edges. It is not invented seed data. Initial selection is `lib/express.js`. `source-snapshot.json` preserves the retrieved source, source URLs, and normalized previews; `generate-data.mjs --snapshot --write` reproduces the inline data offline. `EXPRESS-LICENSE.txt` preserves the source's MIT license. These supporting files and `verify.cjs` are additions to the two planned files.
+
+The shallow clone failed with `Could not resolve host: github.com`. The web tool could retrieve cached GitHub/raw source pages instead. Consequently, the shipped data is an explicitly labeled **partial cached master snapshot**, not a verified current checkout. `023767fe9872e029271df1418f73401bff20ff40` is the head observed on the cached commit-history page (https://github.com/expressjs/express/commits/master/); the source pages were cached at different times and cannot be attributed conclusively to that SHA. This limitation appears in the page footer and expanded provenance description. Some previews have normalized whitespace because the web extraction collapsed source lines; they are labeled accordingly. No missing code or edges were fabricated.
+
+Plan objection: current Express master has no `lib/router/` or `lib/middleware/`; those implementations are external dependencies. To retain all four requested categories while accurately representing the retrieved files, directory classification uses `lib/` and root index for core; `examples/multi-router`, `route-map`, and `route-separation` for router; `examples/route-middleware`, `error`, and `cookie-sessions` for middleware; other examples for example. The page explains this. The generator also handles the original lib/router and lib/middleware paths when present.
+
+The graph covers JavaScript/module/JSON source files, not templates, images, stylesheets, or other assets in examples. Literal `require(...)` matching is regex based; block comments are removed before matching, duplicate file-pair edges are deduplicated, and built-in/npm imports are unique per-file badges. Dynamic requires are not resolved. This is source inspection, not execution of Express.
+
+Verification: `node verify.cjs` opens and executes the shipped page in a dependency-free DOM harness. It passes initial 37-node/39-edge/four-category checks, inspects every node and its nonempty code preview, verifies every direct neighbor highlight and edge endpoint, case-insensitive search, each category toggle, combined filters, no-result/reset behavior, inspector link navigation, zoom/pan/reset, commit metadata, local asset resolution, meaningful static HTML, and absence of runtime network APIs. Runtime code is isolated inside an IIFE to avoid window-global naming collisions.
+
+## Could not do
+
+Could not obtain a fresh, complete, commit-verified clone because shell DNS/network access to GitHub is unavailable. `node generate-data.mjs` retains the specified shallow-clone workflow and emits JSON to stdout; add `--write` to update the inline data when network access is available. Errors propagate and cause a nonzero exit; there is no silent fallback in the generator.
+
+Cached source retrieval also failed for `examples/markdown/index.js`, `params/index.js`, `session/index.js`, `view-constructor/index.js`, `mvc/controllers/main/index.js`, `mvc/controllers/user-pet/index.js`, `route-separation/post.js`, and `view-locals/user.js`. Other unlisted files may exist in nested example directories because a complete recursive tree was unavailable. Two relative imports have missing targets in the shipped snapshot: route-separation → ./post, and view-locals → ./user. These are recorded in the data and visible under the page's source explanation; they are not drawn as false connections. Some cached snippets lose exact source whitespace. Current-head and complete-tree accuracy remain the substantive limitations.
+
+## Omitted for lack of a service
+
+Outbound Git/DNS access (or a repository archive download capability), so the build could retrieve the complete current Express checkout and verify every file against its commit SHA. No image-generation or other runtime service is needed.
